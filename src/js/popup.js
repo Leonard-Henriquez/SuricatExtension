@@ -1,3 +1,5 @@
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import handlers from './modules/handlers';
 import msg from './modules/msg';
 import form from './modules/form';
@@ -14,6 +16,23 @@ import runner from './modules/runner';
 // issue command requests from this context), you may simply omit the
 // `handlers` parameter for good when invoking msg.init()
 
-console.log('POPUP SCRIPT WORKS!'); // eslint-disable-line no-console
 
-form.init(runner.go.bind(runner, msg.init('popup', handlers.create('popup'))));
+// form.init(runner.go.bind(runner, msg.init('popup', handlers.create('popup'))));
+
+
+$(() => {
+  const value = 'value';
+
+  const onClick = (e) => {
+    e.preventDefault();
+    chrome.storage.sync.set({ key: value });
+
+    chrome.storage.sync.get(['key'], (result) => {
+      console.log(result.key);
+      console.log(`Value is now + ${result.key}`);
+    });
+    $('#submit').text('OK');
+  };
+  $('#submit').click(onClick);
+
+});
