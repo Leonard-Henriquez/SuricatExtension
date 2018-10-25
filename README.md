@@ -1,4 +1,4 @@
-## SSuricat Extension
+## Suricat Extension
 * includes awesome messaging module
 * webpack-based build system
 * full ES6 support with Babel 6
