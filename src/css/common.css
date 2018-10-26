@@ -1,7 +1,8 @@
 body {
   width: 300px;
+  margin: 10px !important;
 }
 
-#submit {
-  margin-bottom: 10px;
+#title {
+  margin-bottom: 15px;
 }
