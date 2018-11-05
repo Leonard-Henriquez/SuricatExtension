@@ -30,7 +30,7 @@ handlers.create = context => ({
     log(`---> ${context}::echo("${what}") invoked`);
     log('<--- (no return value)');
     done();
-  }
+  },
 });
 
 // for surpressing console.log output in unit tests:

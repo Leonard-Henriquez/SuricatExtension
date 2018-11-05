@@ -16,6 +16,15 @@
     "default_icon": "images/logo_128x128.png",
     "default_title": "Suricat"
   },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "MacCtrl+Shift+F"
+      },
+    "description": "Opens extension"
+    }
+  },
   "icons": {
     "16": "images/logo_16x16.png",
     "48": "images/logo_48x48.png",

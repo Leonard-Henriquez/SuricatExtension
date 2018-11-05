@@ -1,4 +1,4 @@
-import handlers from './modules/handlers';
+import $ from 'jquery';
 import msg from './modules/msg';
 
 // here we use SHARED message handlers, so all the contexts support the same
@@ -15,26 +15,110 @@ import msg from './modules/msg';
 
 console.log('BACKGROUND SCRIPT WORKS!'); // eslint-disable-line no-console
 
-// adding special background notification handlers onConnect / onDisconnect
-function logEvent(ev, context, tabId) {
-  console.log(`${ev}: context = ${context}, tabId = ${tabId}`); // eslint-disable-line no-console
-}
-handlers.onConnect = logEvent.bind(null, 'onConnect');
-handlers.onDisconnect = logEvent.bind(null, 'onDisconnect');
-const message = msg.init('bg', handlers.create('bg'));
+const authenticateUrl = 'http://localhost:3000/api/v1/sessions';
+const createOpportunityUrl = 'http://localhost:3000/api/v1/opportunities';
 
-// issue `echo` command in 10 seconds after invoked,
-// schedule next run in 5 minutes
-function helloWorld() {
-  console.log('===== will broadcast "hello world!" in 10 seconds'); // eslint-disable-line no-console
-  setTimeout(() => {
-    console.log('>>>>> broadcasting "hello world!" now'); // eslint-disable-line no-console
-    message.bcast('echo', 'hello world!', () =>
-      console.log('<<<<< broadcasting done') // eslint-disable-line no-console
-    );
-  }, 10 * 1000);
-  setTimeout(helloWorld, 5 * 60 * 1000);
-}
+let userCredentials;
 
-// start broadcasting loop
-helloWorld();
+const readCredentials = () => {
+  chrome.storage.sync.get('user_credentials', (value) => {
+    if (value.user_credentials !== undefined) {
+      userCredentials = value.user_credentials;
+      return;
+    }
+
+    if (chrome.runtime.lastError) {
+      console.log('Failed to read credentials: ', chrome.runtime.lastError);
+    }
+    userCredentials = undefined;
+  });
+};
+
+const storeCredentials = (user) => {
+  chrome.storage.sync.clear();
+  const data = {
+    email: user.email,
+    authentication_token: user.authentication_token
+  };
+  chrome.storage.sync.set({ user_credentials: data }, () => {
+    if (chrome.runtime.lastError) {
+      console.log('Failed to store credentials: ', chrome.runtime.lastError);
+    } else {
+      $('#authenticate').hide();
+    }
+  });
+  console.log('Set credentials');
+};
+
+const isLogged = () => userCredentials !== undefined &&
+  userCredentials.email !== undefined &&
+  userCredentials.authentication_token !== undefined;
+
+const sendLoginStatus = () => {
+  message.bcast(['popup'], 'isLogged', isLogged());
+  console.log(`Sent logging status: ${isLogged()}`); // eslint-disable-line no-console
+};
+
+const createOpportunity = (data) => {
+  console.log(data);
+  // $.ajax({
+  //   method: 'POST',
+  //   url: createOpportunityUrl,
+  //   data,
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'X-User-Email': userCredentials.email,
+  //     'X-User-Token': userCredentials.authentication_token
+  //   },
+  //   dataType: 'json',
+  //   success: (response) => {
+  //     console.log('Created new opportunity');
+  //     console.log(response);
+  //   },
+  //   error: () => {
+  //     console.log('Failed to create opportunity');
+  //   }
+  // });
+};
+
+const authenticate = (data) => {
+  $.ajax({
+    method: 'POST',
+    url: authenticateUrl,
+    data,
+    success: (response) => {
+      console.log('Fetched token');
+      console.log(response.user);
+      message.bcast(['popup'], 'storeCredentials', response.user);
+    },
+    error: () => {
+      console.log('Failed to fetch token');
+    }
+  });
+};
+
+const backgroundHandlers = {
+  onConnect: (context, b, c) => {
+    console.log(`${context} connected`);
+    if (context === 'popup') {
+      sendLoginStatus();
+    }
+  },
+
+  onDisconnect: (context) => {
+    console.log(`${context} disconnected`);
+  },
+
+  storeCredentials,
+
+  authenticate,
+
+  createOpportunity
+};
+
+const message = msg.init('bg', backgroundHandlers);
+
+$(() => {
+  // chrome.storage.sync.clear();
+  readCredentials();
+});

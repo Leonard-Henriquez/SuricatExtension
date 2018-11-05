@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import handlers from './modules/handlers';
+// import handlers from './modules/handlers';
 import msg from './modules/msg';
 
 // here we use SHARED message handlers, so all the contexts support the same
@@ -15,6 +15,14 @@ import msg from './modules/msg';
 
 console.log('CONTENT SCRIPT WORKS!'); // eslint-disable-line no-console
 
-msg.init('ct', handlers.create('ct'));
+const contentHandlers = {
+  getContent: (url) => {
+    console.log(`Scrapping "${url}"...`);
+    const data = { url };
+    message.bg('createOpportunity', data);
+  }
+};
+
+const message = msg.init('ct', contentHandlers);
 
 console.log('jQuery version:', $().jquery); // eslint-disable-line no-console
