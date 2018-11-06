@@ -6,6 +6,7 @@
   "extends": "airbnb/base",
   "parser": "babel-eslint",
   "rules": {
+    "no-console": "off",
     "comma-dangle": 0,
     "import/prefer-default-export": 0,
 
@@ -17,5 +18,8 @@
     "import/resolver": {
       "babel-module": {}
     }
+  },
+  "globals": {
+    "chrome": false
   }
 }

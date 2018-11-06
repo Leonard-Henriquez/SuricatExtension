@@ -13,7 +13,7 @@ import msg from './modules/msg';
 // to be able to issue command requests from this context), you may simply
 // omit the `hadnlers` parameter for good when invoking msg.init()
 
-console.log('BACKGROUND SCRIPT WORKS!'); // eslint-disable-line no-console
+console.log('BACKGROUND SCRIPT WORKS!');
 
 const authenticateUrl = 'http://localhost:3000/api/v1/sessions';
 const createOpportunityUrl = 'http://localhost:3000/api/v1/opportunities';
@@ -56,29 +56,29 @@ const isLogged = () => userCredentials !== undefined &&
 
 const sendLoginStatus = () => {
   message.bcast(['popup'], 'isLogged', isLogged());
-  console.log(`Sent logging status: ${isLogged()}`); // eslint-disable-line no-console
+  console.log(`Sent logging status: ${isLogged()}`);
 };
 
 const createOpportunity = (data) => {
   console.log(data);
-  // $.ajax({
-  //   method: 'POST',
-  //   url: createOpportunityUrl,
-  //   data,
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'X-User-Email': userCredentials.email,
-  //     'X-User-Token': userCredentials.authentication_token
-  //   },
-  //   dataType: 'json',
-  //   success: (response) => {
-  //     console.log('Created new opportunity');
-  //     console.log(response);
-  //   },
-  //   error: () => {
-  //     console.log('Failed to create opportunity');
-  //   }
-  // });
+  $.ajax({
+    method: 'POST',
+    url: createOpportunityUrl,
+    dataType: 'json',
+    data: JSON.stringify({ opportunity: data }),
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-Email': userCredentials.email,
+      'X-User-Token': userCredentials.authentication_token
+    },
+    success: (response) => {
+      console.log('Created new opportunity');
+      console.log(response);
+    },
+    error: () => {
+      console.log('Failed to create opportunity');
+    }
+  });
 };
 
 const authenticate = (data) => {
@@ -98,7 +98,7 @@ const authenticate = (data) => {
 };
 
 const backgroundHandlers = {
-  onConnect: (context, b, c) => {
+  onConnect: (context) => {
     console.log(`${context} connected`);
     if (context === 'popup') {
       sendLoginStatus();

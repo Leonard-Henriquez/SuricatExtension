@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import handlers from './modules/handlers';
+// import handlers from './modules/handlers';
 import msg from './modules/msg';
-import runner from './modules/runner';
+// import runner from './modules/runner';
 
 // here we use SHARED message handlers, so all the contexts support the same
 // commands. but this is NOT typical messaging system usage, since you usually
@@ -35,6 +35,7 @@ const checkLoginStatus = (isLogged) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url);
     });
+
     // createOpportunity(userCredentials);
   } else {
     console.log('Not logged');
