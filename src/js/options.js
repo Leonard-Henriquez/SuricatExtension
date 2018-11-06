@@ -1,7 +1,7 @@
-import handlers from './modules/handlers';
+import $ from 'jquery';
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import msg from './modules/msg';
-import form from './modules/form';
-import runner from './modules/runner';
 
 // here we use SHARED message handlers, so all the contexts support the same
 // commands. but this is NOT typical messaging system usage, since you usually
@@ -16,4 +16,12 @@ import runner from './modules/runner';
 
 console.log('OPTIONS SCRIPT WORKS!'); // eslint-disable-line no-console
 
-form.init(runner.go.bind(runner, msg.init('options', handlers.create('options'))));
+const onClick = (e) => {
+  e.preventDefault();
+  console.log('Logging out');
+  message.bg('logOut');
+};
+
+const message = msg.init('options');
+
+$(document).on('click', '#logout', onClick);

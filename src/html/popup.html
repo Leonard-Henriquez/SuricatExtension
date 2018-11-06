@@ -7,13 +7,13 @@
   </head>
   <body>
     <form>
-      <h3 id="title" class="text-center">New opportunity</h3>
-      <div id="not-offer-error" style="display: none;">
-        <p>
-          This is not an offer
-        </p>
+      <div id="message">
+        <p id="message-content" class="text-center">Please reload page</p>
       </div>
-      <div class="text-center">
+      <div id="authentication-form" class="text-center" style="display: none;">
+        <h3 id="title" class="text-center">Authentication</h3>
+        <input type="text" name="email" id="email" placeholder="email" class="form-control mb-2">
+        <input type="password" name="password" id="password" placeholder="password" class="form-control mb-2">
         <button id="authenticate" class="btn btn-primary">Connect</button>
       </div>
 

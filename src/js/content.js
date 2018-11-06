@@ -19,7 +19,11 @@ const contentHandlers = {
   getContent: (url) => {
     console.log(`Scrapping "${url}"...`);
     const data = scrapper.scrapContent(url);
-    message.bg('createOpportunity', data);
+    if (data) {
+      message.bg('createOpportunity', data);
+    } else {
+      message.bcast(['popup'], 'notOpportunity', data);
+    }
   }
 };
 

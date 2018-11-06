@@ -1,9 +1,8 @@
+// import runner from './modules/runner';
 import $ from 'jquery';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-// import handlers from './modules/handlers';
 import msg from './modules/msg';
-// import runner from './modules/runner';
 
 // here we use SHARED message handlers, so all the contexts support the same
 // commands. but this is NOT typical messaging system usage, since you usually
@@ -20,8 +19,8 @@ const onClick = (e) => {
   e.preventDefault();
   console.log('click');
   const credentials = {
-    email: 'test@test.com',
-    password: '123456'
+    email: $('#email').val(),
+    password: $('#password').val()
   };
   message.bg('authenticate', credentials);
 };
@@ -30,22 +29,35 @@ const checkLoginStatus = (isLogged) => {
   console.log(isLogged);
   if (isLogged) {
     console.log('Logged');
-    $('#authenticate').hide();
-
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url);
-    });
-
-    // createOpportunity(userCredentials);
+    $('#authentication-form').hide();
+    $('#message').show();
   } else {
     console.log('Not logged');
-    $('#authenticate').show();
+    $('#message').show();
+    $('#message-content').text('Not logged');
+    $('#authentication-form').show();
   }
 };
 
 const popupHandlers = {
   isLogged: (isLogged) => {
     checkLoginStatus(isLogged);
+  },
+  onLoad: (isLogged) => {
+    checkLoginStatus(isLogged);
+    if (isLogged) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url);
+      });
+    }
+  },
+  notOpportunity: () => {
+    checkLoginStatus(true);
+    $('#message-content').text("Sorry, but we can't scrap this offer yet :'(");
+  },
+  newOpportunity: () => {
+    checkLoginStatus(true);
+    $('#message-content').text('Yeah!! This offer has been added to your dashboard');
   }
 };
 

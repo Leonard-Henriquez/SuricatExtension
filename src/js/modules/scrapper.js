@@ -3,6 +3,11 @@ import $ from 'jquery';
 const basisSelector = '.job-offer-container';
 
 const scrapContent = (url) => {
+  if ($(basisSelector).length === 0) {
+    console.log('No opportunity found on the page');
+    return false;
+  }
+
   const data = { url };
   let title;
   let content;

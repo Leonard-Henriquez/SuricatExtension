@@ -21,9 +21,11 @@ const createOpportunityUrl = 'http://localhost:3000/api/v1/opportunities';
 let userCredentials;
 
 const readCredentials = () => {
+  userCredentials = undefined;
   chrome.storage.sync.get('user_credentials', (value) => {
     if (value.user_credentials !== undefined) {
       userCredentials = value.user_credentials;
+      sendLoginStatus();
       return;
     }
 
@@ -31,11 +33,11 @@ const readCredentials = () => {
       console.log('Failed to read credentials: ', chrome.runtime.lastError);
     }
     userCredentials = undefined;
+    sendLoginStatus();
   });
 };
 
 const storeCredentials = (user) => {
-  chrome.storage.sync.clear();
   const data = {
     email: user.email,
     authentication_token: user.authentication_token
@@ -43,19 +45,52 @@ const storeCredentials = (user) => {
   chrome.storage.sync.set({ user_credentials: data }, () => {
     if (chrome.runtime.lastError) {
       console.log('Failed to store credentials: ', chrome.runtime.lastError);
+      // failed
     } else {
-      $('#authenticate').hide();
+      console.log('Credentials stored');
+      // success
     }
+    readCredentials();
   });
-  console.log('Set credentials');
 };
 
-const isLogged = () => userCredentials !== undefined &&
+const authenticate = (data) => {
+  console.log(data);
+  $.ajax({
+    method: 'POST',
+    url: authenticateUrl,
+    data,
+    success: (response) => {
+      console.log('Fetched token');
+      if (response.user !== undefined) {
+        console.log(response.user);
+        storeCredentials(response.user);
+      } else {
+        console.log('Wrong credentials');
+        // failed
+      }
+    },
+    error: () => {
+      console.log('Failed to fetch token');
+      // failed
+    }
+  });
+};
+
+const logOut = () => {
+  userCredentials = undefined;
+  chrome.storage.sync.clear();
+  console.log('Logged out');
+};
+
+const isLogged = () => {
+  return (userCredentials !== undefined &&
   userCredentials.email !== undefined &&
-  userCredentials.authentication_token !== undefined;
+  userCredentials.authentication_token !== undefined);
+};
 
 const sendLoginStatus = () => {
-  message.bcast(['popup'], 'isLogged', isLogged());
+  message.bcast(['popup', 'options'], 'isLogged', isLogged());
   console.log(`Sent logging status: ${isLogged()}`);
 };
 
@@ -74,25 +109,10 @@ const createOpportunity = (data) => {
     success: (response) => {
       console.log('Created new opportunity');
       console.log(response);
+      message.bcast(['popup'], 'newOpportunity');
     },
     error: () => {
       console.log('Failed to create opportunity');
-    }
-  });
-};
-
-const authenticate = (data) => {
-  $.ajax({
-    method: 'POST',
-    url: authenticateUrl,
-    data,
-    success: (response) => {
-      console.log('Fetched token');
-      console.log(response.user);
-      message.bcast(['popup'], 'storeCredentials', response.user);
-    },
-    error: () => {
-      console.log('Failed to fetch token');
     }
   });
 };
@@ -101,7 +121,8 @@ const backgroundHandlers = {
   onConnect: (context) => {
     console.log(`${context} connected`);
     if (context === 'popup') {
-      sendLoginStatus();
+      message.bcast(['popup', 'options'], 'onLoad', isLogged());
+      console.log(`Sent logging status (onLoad): ${isLogged()}`);
     }
   },
 
@@ -109,9 +130,9 @@ const backgroundHandlers = {
     console.log(`${context} disconnected`);
   },
 
-  storeCredentials,
-
   authenticate,
+
+  logOut,
 
   createOpportunity
 };
@@ -119,6 +140,5 @@ const backgroundHandlers = {
 const message = msg.init('bg', backgroundHandlers);
 
 $(() => {
-  // chrome.storage.sync.clear();
   readCredentials();
 });
