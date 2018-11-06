@@ -1,7 +1,6 @@
 // import runner from './modules/runner';
 import $ from 'jquery';
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './app';
 import msg from './modules/msg';
 
 // here we use SHARED message handlers, so all the contexts support the same
@@ -15,6 +14,8 @@ import msg from './modules/msg';
 // issue command requests from this context), you may simply omit the
 // `handlers` parameter for good when invoking msg.init()
 
+let status = 0;
+
 const onClick = (e) => {
   e.preventDefault();
   console.log('click');
@@ -25,17 +26,29 @@ const onClick = (e) => {
   message.bg('authenticate', credentials);
 };
 
+const onRate = () => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url);
+  });
+};
+
+
 const checkLoginStatus = (isLogged) => {
   console.log(isLogged);
   if (isLogged) {
     console.log('Logged');
     $('#authentication-form').hide();
+    $('#rating').hide();
+    if ($('#message-content').text() === 'Not logged') {
+      $('#message-content').text('Logged in');
+    }
     $('#message').show();
   } else {
     console.log('Not logged');
+    $('#authentication-form').show();
     $('#message').show();
     $('#message-content').text('Not logged');
-    $('#authentication-form').show();
+    $('#rating').hide();
   }
 };
 
@@ -46,13 +59,12 @@ const popupHandlers = {
   onLoad: (isLogged) => {
     checkLoginStatus(isLogged);
     if (isLogged) {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url);
-      });
+      $('#rating').show();
     }
   },
   notOpportunity: () => {
     checkLoginStatus(true);
+    $('#rating').hide();
     $('#message-content').text("Sorry, but we can't scrap this offer yet :'(");
   },
   newOpportunity: () => {
@@ -64,3 +76,4 @@ const popupHandlers = {
 const message = msg.init('popup', popupHandlers);
 
 $(document).on('click', '#authenticate', onClick);
+$(document).on('click', '.star', onRate);

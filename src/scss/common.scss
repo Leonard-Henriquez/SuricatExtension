@@ -1,0 +1,67 @@
+body {
+  width: 300px;
+  margin: 10px !important;
+}
+
+#title {
+  margin-bottom: 15px;
+}
+
+a,
+a:hover,
+a:active,
+a:focus {
+  text-decoration: none;
+}
+
+.btn:active, .btn:hover, .btn {
+  font-family: Raleway;
+  font-weight: 500;
+  text-decoration: none !important;
+}
+
+.btn-primary, .btn-secondary {
+  height: 50px;
+  border: 1px solid $primary;
+  font-size: 20px;
+  text-align: center;
+  line-height: 35px;
+
+  &:hover {
+    border: 1px solid $primary;
+  }
+}
+
+.btn-primary {
+  color: $body-bg;
+
+  &:hover {
+    color: $primary;
+    background: $body-bg;
+  }
+}
+.btn-secondary {
+  color: $primary;
+  background: $body-bg;
+
+  &:hover {
+    color: $body-bg;
+    background: $primary;
+  }
+}
+
+#rating {
+  margin-bottom: 15px;
+}
+
+#rating-content {
+  display: inline;
+}
+
+#rating-content:hover {
+  color: $primary;
+}
+
+#rating-content span:hover ~ span {
+  color: $body-color;
+}

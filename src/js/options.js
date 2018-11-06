@@ -1,6 +1,5 @@
 import $ from 'jquery';
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './app';
 import msg from './modules/msg';
 
 // here we use SHARED message handlers, so all the contexts support the same
