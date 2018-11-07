@@ -15,7 +15,7 @@ import msg from './modules/msg';
 
 console.log('BACKGROUND SCRIPT WORKS!');
 
-const baseUrl = (process.env.NODE_ENV === 'development') ? 'http://localhost:3000/' : 'https://suricat.co/';
+const baseUrl = (process.env.NODE_ENV === 'development') ? 'http://localhost:3000/' : 'https://www.suricat.co/';
 
 console.log('Node env: ', process.env.NODE_ENV);
 console.log('API url: ', baseUrl);
@@ -61,6 +61,7 @@ const storeCredentials = (user) => {
 };
 
 const authenticate = (data) => {
+  console.log(data)
   $.ajax({
     method: 'POST',
     url: authenticateUrl,
