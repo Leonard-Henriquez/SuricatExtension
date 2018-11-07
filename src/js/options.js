@@ -19,6 +19,7 @@ const onClick = (e) => {
   e.preventDefault();
   console.log('Logging out');
   message.bg('logOut');
+  $('#logout').prop('disabled', true);
 };
 
 const message = msg.init('options');

@@ -14,11 +14,20 @@ import msg from './modules/msg';
 // issue command requests from this context), you may simply omit the
 // `handlers` parameter for good when invoking msg.init()
 
-let status = 0;
+let previousStatus;
+let status = undefined;
 
-const onClick = (e) => {
+let loggedIn = false;
+
+// -1 not valid opportunity
+//  0 not logged in
+//  1 ask for rating
+//  2 thx message
+
+const askToAuthenticate = (e) => {
   e.preventDefault();
   console.log('click');
+  displayMessage('Wrong email or password', false, true);
   const credentials = {
     email: $('#email').val(),
     password: $('#password').val()
@@ -26,54 +35,102 @@ const onClick = (e) => {
   message.bg('authenticate', credentials);
 };
 
-const onRate = () => {
+const askToCheckContent = () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url);
+    message.bcast(tabs[0].id, ['ct'], 'isContentValid');
   });
 };
 
+const askToScrapContent = (e) => {
+  e.preventDefault();
+  const stars = parseInt(e.currentTarget.id);
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    message.bcast(tabs[0].id, ['ct'], 'getContent', tabs[0].url, stars);
+  });
+};
 
-const checkLoginStatus = (isLogged) => {
-  console.log(isLogged);
-  if (isLogged) {
-    console.log('Logged');
-    $('#authentication-form').hide();
+const displayMessage = (text, showRating = false, showLogin = false) => {
+  if (showRating) {
+    $('#rating').show();
+  } else {
     $('#rating').hide();
-    if ($('#message-content').text() === 'Not logged') {
-      $('#message-content').text('Logged in');
-    }
+  }
+  if (showLogin) {
+    $('#authentication-form').show();
+  } else {
+    $('#authentication-form').hide();
+  }
+
+  $('#message-content').text(text);
+  if (text !== '') {
     $('#message').show();
   } else {
-    console.log('Not logged');
-    $('#authentication-form').show();
-    $('#message').show();
-    $('#message-content').text('Not logged');
-    $('#rating').hide();
+    $('#message').hide();
+  }
+};
+
+const display = () => {
+  if (status === previousStatus) {
+    return;
+  }
+  previousStatus = status;
+  console.log(status);
+
+  switch (status) {
+    case -1:
+      displayMessage("Sorry, but we can't scrap this offer yet :'(");
+      break;
+
+    case 0:
+      displayMessage('Please log in', false, true);
+      break;
+
+    case 1:
+      displayMessage('Please rate this job offer', true, false);
+      break;
+
+    case 2:
+      displayMessage('Yeah! This opportunity has been added to your dashboard');
+      break;
+
+    default:
+      displayMessage('Please reload');
+
+  }
+};
+
+const login = () => {
+  if (status === 0 && loggedIn) {
+    status = 1;
   }
 };
 
 const popupHandlers = {
-  isLogged: (isLogged) => {
-    checkLoginStatus(isLogged);
+  loggedInStatus: (isLogged) => {
+    loggedIn = isLogged;
+    login();
   },
-  onLoad: (isLogged) => {
-    checkLoginStatus(isLogged);
-    if (isLogged) {
-      $('#rating').show();
+  isValidOpportunity: (isValid) => {
+    if (isValid) {
+      console.log('Offer valid');
+      status = 0;
+    } else {
+      console.log('Offer not valid');
+      status = -1;
     }
-  },
-  notOpportunity: () => {
-    checkLoginStatus(true);
-    $('#rating').hide();
-    $('#message-content').text("Sorry, but we can't scrap this offer yet :'(");
+    login();
   },
   newOpportunity: () => {
-    checkLoginStatus(true);
-    $('#message-content').text('Yeah!! This offer has been added to your dashboard');
+    status = 2;
   }
 };
 
 const message = msg.init('popup', popupHandlers);
 
-$(document).on('click', '#authenticate', onClick);
-$(document).on('click', '.star', onRate);
+$(document).ready(() => {
+  askToCheckContent();
+  $(document).on('click', '#authenticate', askToAuthenticate);
+  $(document).on('click', '.star', askToScrapContent);
+  display();
+  setInterval(display, 100);
+});

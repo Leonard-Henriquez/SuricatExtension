@@ -15,8 +15,8 @@ import msg from './modules/msg';
 
 console.log('BACKGROUND SCRIPT WORKS!');
 
-const authenticateUrl = 'http://localhost:3000/api/v1/sessions';
-const createOpportunityUrl = 'http://localhost:3000/api/v1/opportunities';
+const authenticateUrl = 'https://www.suricat.co/api/v1/sessions';
+const createOpportunityUrl = 'https://www.suricat.co/api/v1/opportunities';
 
 let userCredentials;
 
@@ -55,7 +55,6 @@ const storeCredentials = (user) => {
 };
 
 const authenticate = (data) => {
-  console.log(data);
   $.ajax({
     method: 'POST',
     url: authenticateUrl,
@@ -90,7 +89,7 @@ const isLogged = () => {
 };
 
 const sendLoginStatus = () => {
-  message.bcast(['popup', 'options'], 'isLogged', isLogged());
+  message.bcast(['popup', 'options'], 'loggedInStatus', isLogged());
   console.log(`Sent logging status: ${isLogged()}`);
 };
 
@@ -121,8 +120,7 @@ const backgroundHandlers = {
   onConnect: (context) => {
     console.log(`${context} connected`);
     if (context === 'popup') {
-      message.bcast(['popup', 'options'], 'onLoad', isLogged());
-      console.log(`Sent logging status (onLoad): ${isLogged()}`);
+      sendLoginStatus();
     }
   },
 

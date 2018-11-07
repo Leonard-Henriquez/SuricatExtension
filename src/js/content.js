@@ -16,13 +16,23 @@ import scrapper from './modules/scrapper';
 console.log('CONTENT SCRIPT WORKS!');
 
 const contentHandlers = {
-  getContent: (url) => {
+  isContentValid: () => {
+    console.log('Checking content...');
+    const isValid = ($(scrapper.basisSelector).length > 0);
+    if (isValid) {
+      console.log('Opportunity found on the page');
+    } else {
+      console.log('No opportunity found on the page');
+    }
+    message.bcast(['popup'], 'isValidOpportunity', isValid);
+  },
+  getContent: (url, stars) => {
     console.log(`Scrapping "${url}"...`);
-    const data = scrapper.scrapContent(url);
+    const data = scrapper.scrapContent(url, stars);
     if (data) {
       message.bg('createOpportunity', data);
     } else {
-      message.bcast(['popup'], 'notOpportunity', data);
+      message.bcast(['popup'], 'notValidOpportunity');
     }
   }
 };
