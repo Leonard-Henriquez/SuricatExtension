@@ -31,12 +31,11 @@ module.exports = {
         }, {
           loader: 'postcss-loader', // Run post css actions
           options: {
-            plugins: () => { // post css plugins, can be exported to postcss.config.js
-              return [
+            plugins: () =>  // post css plugins, can be exported to postcss.config.js
+              [
                 require('precss'),
                 require('autoprefixer')
-              ];
-            }
+              ]
           }
         }, {
           loader: 'sass-loader' // compiles Sass to CSS

@@ -49,5 +49,6 @@ module.exports = _.merge({}, config, {
         screw_ie8: true
       }
     }),
+    new webpack.EnvironmentPlugin({ NODE_ENV: 'production' })
   ]
 });

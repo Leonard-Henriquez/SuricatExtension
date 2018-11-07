@@ -15,8 +15,14 @@ import msg from './modules/msg';
 
 console.log('BACKGROUND SCRIPT WORKS!');
 
-const authenticateUrl = 'https://www.suricat.co/api/v1/sessions';
-const createOpportunityUrl = 'https://www.suricat.co/api/v1/opportunities';
+const baseUrl = (process.env.NODE_ENV === 'development') ? 'http://localhost:3000/' : 'https://suricat.co/';
+
+console.log('Node env: ', process.env.NODE_ENV);
+console.log('API url: ', baseUrl);
+
+const authenticateUrl = `${baseUrl}api/v1/sessions`;
+const createOpportunityUrl = `${baseUrl}api/v1/opportunities`;
+
 
 let userCredentials;
 
@@ -82,11 +88,9 @@ const logOut = () => {
   console.log('Logged out');
 };
 
-const isLogged = () => {
-  return (userCredentials !== undefined &&
+const isLogged = () => (userCredentials !== undefined &&
   userCredentials.email !== undefined &&
   userCredentials.authentication_token !== undefined);
-};
 
 const sendLoginStatus = () => {
   message.bcast(['popup', 'options'], 'loggedInStatus', isLogged());
