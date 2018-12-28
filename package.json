@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Suricat extension",
   "engines": {
-    "node": "8.10.0",
+    "node": "8.12.0",
     "npm": "3.10.8"
   },
   "scripts": {
